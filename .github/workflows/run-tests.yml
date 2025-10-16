@@ -51,6 +51,10 @@ jobs:
       - name: Install dependencies
         run: |
           composer require "laravel/framework:${{ matrix.laravel }}" "orchestra/testbench:${{ matrix.testbench }}" --no-interaction --no-update --dev
+          # For Laravel 12 with prefer-lowest, ensure minimum compatible versions
+          if [[ "${{ matrix.laravel }}" == "12.*" && "${{ matrix.stability }}" == "prefer-lowest" ]]; then
+            composer require "orchestra/testbench:^10.6" --no-interaction --no-update --dev
+          fi
           composer update --${{ matrix.stability }} --prefer-dist --no-interaction
 
       - name: Setup workbench (Orchestra Testbench 10.x)
