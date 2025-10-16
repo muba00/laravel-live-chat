@@ -33,3 +33,6 @@ testbench.yaml
 
 # Testing Infrastructure (created by Orchestra Testbench)
 /workbench
+
+# GitHub Copilot Instructions
+/.github/copilot-instructions.md
