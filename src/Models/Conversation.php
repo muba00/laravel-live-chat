@@ -77,7 +77,11 @@ class Conversation extends Model
      */
     public function getOtherUser(mixed $currentUser): mixed
     {
-        $userId = $currentUser instanceof Model ? $currentUser->id : $currentUser->id;
+        $userId = is_int($currentUser) ? $currentUser : (is_object($currentUser) && isset($currentUser->id) ? (int) $currentUser->id : null);
+
+        if ($userId === null) {
+            return null;
+        }
 
         if ($this->user1_id === $userId) {
             return $this->user2;
@@ -95,7 +99,11 @@ class Conversation extends Model
      */
     public function includesUser(mixed $user): bool
     {
-        $userId = $user instanceof Model ? $user->id : $user->id;
+        $userId = is_int($user) ? $user : (is_object($user) && isset($user->id) ? (int) $user->id : null);
+
+        if ($userId === null) {
+            return false;
+        }
 
         return $this->user1_id === $userId || $this->user2_id === $userId;
     }
@@ -105,7 +113,11 @@ class Conversation extends Model
      */
     public function scopeForUser($query, mixed $user)
     {
-        $userId = $user instanceof Model ? $user->id : $user->id;
+        $userId = is_int($user) ? $user : (is_object($user) && isset($user->id) ? (int) $user->id : null);
+
+        if ($userId === null) {
+            return $query->whereRaw('1 = 0'); // Return no results
+        }
 
         return $query->where(function ($q) use ($userId) {
             $q->where('user1_id', $userId)
@@ -118,8 +130,12 @@ class Conversation extends Model
      */
     public function scopeBetweenUsers($query, mixed $user1, mixed $user2)
     {
-        $user1Id = $user1 instanceof Model ? $user1->id : $user1->id;
-        $user2Id = $user2 instanceof Model ? $user2->id : $user2->id;
+        $user1Id = is_int($user1) ? $user1 : (is_object($user1) && isset($user1->id) ? (int) $user1->id : null);
+        $user2Id = is_int($user2) ? $user2 : (is_object($user2) && isset($user2->id) ? (int) $user2->id : null);
+
+        if ($user1Id === null || $user2Id === null) {
+            return $query->whereRaw('1 = 0'); // Return no results
+        }
 
         $ids = collect([$user1Id, $user2Id])->sort()->values();
 

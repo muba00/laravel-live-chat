@@ -66,7 +66,11 @@ class Message extends Model
      */
     public function isReadBy(mixed $user): bool
     {
-        $userId = $user instanceof Model ? $user->id : $user->id;
+        $userId = is_int($user) ? $user : (is_object($user) && isset($user->id) ? (int) $user->id : null);
+
+        if ($userId === null) {
+            return false;
+        }
 
         // A message is considered read by a user if:
         // 1. The user is not the sender
@@ -109,7 +113,11 @@ class Message extends Model
      */
     public function scopeBySender($query, mixed $user)
     {
-        $userId = $user instanceof Model ? $user->id : $user->id;
+        $userId = is_int($user) ? $user : (is_object($user) && isset($user->id) ? (int) $user->id : null);
+
+        if ($userId === null) {
+            return $query->whereRaw('1 = 0'); // Return no results
+        }
 
         return $query->where('sender_id', $userId);
     }
@@ -119,7 +127,11 @@ class Message extends Model
      */
     public function scopeNotBySender($query, mixed $user)
     {
-        $userId = $user instanceof Model ? $user->id : $user->id;
+        $userId = is_int($user) ? $user : (is_object($user) && isset($user->id) ? (int) $user->id : null);
+
+        if ($userId === null) {
+            return $query->whereRaw('1 = 0'); // Return no results
+        }
 
         return $query->where('sender_id', '!=', $userId);
     }
