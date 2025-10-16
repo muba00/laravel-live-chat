@@ -3,11 +3,16 @@
 namespace muba00\LaravelLiveChat\Tests;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Schema;
 use muba00\LaravelLiveChat\LaravelLiveChatServiceProvider;
 use Orchestra\Testbench\TestCase as Orchestra;
 
 class TestCase extends Orchestra
 {
+    use RefreshDatabase;
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -15,6 +20,19 @@ class TestCase extends Orchestra
         Factory::guessFactoryNamesUsing(
             fn (string $modelName) => 'muba00\\LaravelLiveChat\\Database\\Factories\\'.class_basename($modelName).'Factory'
         );
+
+        // Create users table for testing (exception - not part of package)
+        if (! Schema::hasTable('users')) {
+            Schema::create('users', function (Blueprint $table) {
+                $table->id();
+                $table->string('name');
+                $table->string('email')->unique();
+                $table->timestamps();
+            });
+        }
+
+        // Load package migration stubs
+        $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
     }
 
     protected function getPackageProviders($app)
@@ -24,7 +42,7 @@ class TestCase extends Orchestra
         ];
     }
 
-    public function getEnvironmentSetUp($app)
+    protected function getEnvironmentSetUp($app)
     {
         config()->set('database.default', 'testing');
         config()->set('database.connections.testing', [
@@ -32,5 +50,8 @@ class TestCase extends Orchestra
             'database' => ':memory:',
             'prefix' => '',
         ]);
+        
+        // Enable foreign key constraints for SQLite
+        config()->set('database.connections.testing.foreign_key_constraints', true);
     }
 }

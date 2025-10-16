@@ -1,55 +1,10 @@
 <?php
 
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Schema;
 use muba00\LaravelLiveChat\Models\Conversation;
 use muba00\LaravelLiveChat\Models\Message;
 
-beforeEach(function () {
-    // Enable foreign key constraints for SQLite
-    if (DB::connection()->getDriverName() === 'sqlite') {
-        DB::statement('PRAGMA foreign_keys = ON');
-    }
-
-    // Run migrations
-    Schema::create('live_chat_conversations', function ($table) {
-        $table->id();
-        $table->unsignedBigInteger('user1_id');
-        $table->unsignedBigInteger('user2_id');
-        $table->timestamp('last_message_at')->nullable();
-        $table->timestamps();
-        $table->index(['user1_id', 'user2_id']);
-        $table->index('last_message_at');
-        $table->unique(['user1_id', 'user2_id']);
-    });
-
-    Schema::create('live_chat_messages', function ($table) {
-        $table->id();
-        $table->foreignId('conversation_id')
-            ->constrained('live_chat_conversations')
-            ->onDelete('cascade');
-        $table->unsignedBigInteger('sender_id');
-        $table->text('message');
-        $table->timestamp('read_at')->nullable();
-        $table->timestamps();
-        $table->index(['conversation_id', 'created_at']);
-        $table->index('sender_id');
-        $table->index('read_at');
-    });
-
-    Schema::create('users', function ($table) {
-        $table->id();
-        $table->string('name');
-        $table->string('email')->unique();
-        $table->timestamps();
-    });
-});
-
-afterEach(function () {
-    Schema::dropIfExists('live_chat_messages');
-    Schema::dropIfExists('live_chat_conversations');
-    Schema::dropIfExists('users');
-});
+// Schema is now automatically managed by RefreshDatabase trait in TestCase
+// Migrations are loaded from database/migrations/*.stub files
 
 test('conversation can be created with two users', function () {
     $conversation = Conversation::factory()->betweenUsers(1, 2)->create();
