@@ -3,6 +3,7 @@
 namespace muba00\LaravelLiveChat;
 
 use Illuminate\Database\Eloquent\Model;
+use muba00\LaravelLiveChat\Events\MessageSent;
 use muba00\LaravelLiveChat\Models\Conversation;
 use muba00\LaravelLiveChat\Models\Message;
 
@@ -118,6 +119,11 @@ class LaravelLiveChat
         // Update conversation's last message timestamp
         $conversation->updateLastMessageTime();
 
+        // Broadcast the message if broadcasting is enabled
+        if (config('live-chat.broadcasting.enabled', true)) {
+            event(new MessageSent($newMessage));
+        }
+
         return $newMessage;
     }
 
@@ -221,5 +227,23 @@ class LaravelLiveChat
             ->where('sender_id', '!=', $userId)
             ->whereNull('read_at')
             ->count();
+    }
+
+    /**
+     * Broadcast typing indicator for a user in a conversation.
+     *
+     * @param  Conversation|int  $conversation
+     * @param  Model|object|int  $user
+     */
+    public function broadcastTyping(mixed $conversation, mixed $user, bool $isTyping = true): void
+    {
+        if (! config('live-chat.broadcasting.enabled', true) || ! config('live-chat.features.typing_indicators', true)) {
+            return;
+        }
+
+        $conversationId = $conversation instanceof Conversation ? $conversation->id : $conversation;
+        $userId = $this->getUserId($user);
+
+        event(new \muba00\LaravelLiveChat\Events\UserTyping($conversationId, $userId, $isTyping));
     }
 }
