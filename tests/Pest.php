@@ -18,4 +18,3 @@ function createUser(string $name, string $email): object
     // Return as an object with id property
     return (object) ['id' => $userId, 'name' => $name, 'email' => $email];
 }
-

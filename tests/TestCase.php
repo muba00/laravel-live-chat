@@ -50,7 +50,7 @@ class TestCase extends Orchestra
             'database' => ':memory:',
             'prefix' => '',
         ]);
-        
+
         // Enable foreign key constraints for SQLite
         config()->set('database.connections.testing.foreign_key_constraints', true);
     }
