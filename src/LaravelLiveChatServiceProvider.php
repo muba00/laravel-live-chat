@@ -19,7 +19,10 @@ class LaravelLiveChatServiceProvider extends PackageServiceProvider
             ->name('laravel-live-chat')
             ->hasConfigFile()
             ->hasViews()
-            ->hasMigration('create_laravel_live_chat_table')
+            ->hasMigrations([
+                'create_live_chat_conversations_table',
+                'create_live_chat_messages_table',
+            ])
             ->hasCommand(LaravelLiveChatCommand::class);
     }
 }
