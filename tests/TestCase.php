@@ -41,7 +41,7 @@ class TestCase extends Orchestra
     protected function runPackageMigrations(): void
     {
         $migrationPath = __DIR__.'/../database/migrations';
-        
+
         $migrations = [
             'create_live_chat_conversations_table.php.stub',
             'create_live_chat_messages_table.php.stub',
@@ -67,7 +67,7 @@ class TestCase extends Orchestra
             'database' => ':memory:',
             'prefix' => '',
         ]);
-        
+
         // Enable foreign key constraints for SQLite
         config()->set('database.connections.testing.foreign_key_constraints', true);
     }
