@@ -13,21 +13,8 @@ class TestCase extends Orchestra
         parent::setUp();
 
         Factory::guessFactoryNamesUsing(
-            fn (string $modelName) => 'muba00\\LaravelLiveChat\\Database\\Factories\\'.class_basename($modelName).'Factory'
+            fn(string $modelName) => 'muba00\\LaravelLiveChat\\Database\\Factories\\' . class_basename($modelName) . 'Factory'
         );
-    }
-
-    protected function tearDown(): void
-    {
-        $this->flushHandlers();
-
-        parent::tearDown();
-    }
-
-    protected function flushHandlers(): void
-    {
-        restore_error_handler();
-        restore_exception_handler();
     }
 
     protected function getPackageProviders($app)
