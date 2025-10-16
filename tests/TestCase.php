@@ -31,8 +31,25 @@ class TestCase extends Orchestra
             });
         }
 
-        // Load package migration stubs
-        $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
+        // Run package migration stubs
+        $this->runPackageMigrations();
+    }
+
+    /**
+     * Run migration stubs for testing
+     */
+    protected function runPackageMigrations(): void
+    {
+        $migrationPath = __DIR__.'/../database/migrations';
+        
+        $migrations = [
+            'create_live_chat_conversations_table.php.stub',
+            'create_live_chat_messages_table.php.stub',
+        ];
+
+        foreach ($migrations as $migration) {
+            (include $migrationPath.'/'.$migration)->up();
+        }
     }
 
     protected function getPackageProviders($app)
@@ -50,7 +67,7 @@ class TestCase extends Orchestra
             'database' => ':memory:',
             'prefix' => '',
         ]);
-
+        
         // Enable foreign key constraints for SQLite
         config()->set('database.connections.testing.foreign_key_constraints', true);
     }
