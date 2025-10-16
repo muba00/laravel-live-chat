@@ -2,9 +2,9 @@
 
 namespace muba00\LaravelLiveChat;
 
+use muba00\LaravelLiveChat\Commands\LaravelLiveChatCommand;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
-use muba00\LaravelLiveChat\Commands\LaravelLiveChatCommand;
 
 class LaravelLiveChatServiceProvider extends PackageServiceProvider
 {
