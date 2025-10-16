@@ -34,6 +34,35 @@ class LaravelLiveChatServiceProvider extends PackageServiceProvider
     public function packageBooted(): void
     {
         $this->registerBroadcastChannels();
+        $this->publishFrontendAssets();
+    }
+
+    /**
+     * Publish frontend assets (views, JavaScript, CSS).
+     */
+    protected function publishFrontendAssets(): void
+    {
+        // Publish views (Blade components)
+        $this->publishes([
+            __DIR__.'/../resources/views' => resource_path('views/vendor/live-chat'),
+        ], 'live-chat-views');
+
+        // Publish JavaScript helpers
+        $this->publishes([
+            __DIR__.'/../resources/js' => resource_path('js/vendor/live-chat'),
+        ], 'live-chat-js');
+
+        // Publish CSS styles
+        $this->publishes([
+            __DIR__.'/../resources/css' => resource_path('css/vendor/live-chat'),
+        ], 'live-chat-css');
+
+        // Publish all frontend assets at once
+        $this->publishes([
+            __DIR__.'/../resources/views' => resource_path('views/vendor/live-chat'),
+            __DIR__.'/../resources/js' => resource_path('js/vendor/live-chat'),
+            __DIR__.'/../resources/css' => resource_path('css/vendor/live-chat'),
+        ], 'live-chat-frontend');
     }
 
     /**
