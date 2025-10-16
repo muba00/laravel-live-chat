@@ -17,6 +17,19 @@ class TestCase extends Orchestra
         );
     }
 
+    protected function tearDown(): void
+    {
+        $this->flushHandlers();
+
+        parent::tearDown();
+    }
+
+    protected function flushHandlers(): void
+    {
+        restore_error_handler();
+        restore_exception_handler();
+    }
+
     protected function getPackageProviders($app)
     {
         return [
