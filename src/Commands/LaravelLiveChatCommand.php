@@ -92,8 +92,7 @@ class LaravelLiveChatCommand extends Command
         $this->info('📝 Publishing configuration...');
 
         $params = [
-            '--provider' => "muba00\LaravelLiveChat\LaravelLiveChatServiceProvider",
-            '--tag' => 'laravel-live-chat-config',
+            '--tag' => 'live-chat-config',
         ];
 
         if ($this->option('force')) {
@@ -109,17 +108,27 @@ class LaravelLiveChatCommand extends Command
     {
         $this->info('📦 Publishing migrations...');
 
+        // Note: Spatie's package tools uses shortName() which strips 'laravel-' prefix
+        // So the tag is 'live-chat-migrations', not 'laravel-live-chat-migrations'
         $params = [
-            '--provider' => "muba00\LaravelLiveChat\LaravelLiveChatServiceProvider",
-            '--tag' => 'laravel-live-chat-migrations',
+            '--tag' => 'live-chat-migrations',
         ];
 
         if ($this->option('force')) {
             $params['--force'] = true;
         }
 
-        $this->call('vendor:publish', $params);
-        $this->line('  ✓ Migrations published to: database/migrations/');
+        // Call vendor:publish to publish migrations
+        $result = $this->call('vendor:publish', $params);
+
+        if ($result === 0) {
+            $this->line('  ✓ Migrations published to: database/migrations/');
+        } else {
+            $this->error('  ✗ Failed to publish migrations');
+            $this->newLine();
+
+            return;
+        }
 
         // Skip confirmation in testing environment or non-interactive mode
         if (app()->environment('testing')) {
@@ -141,7 +150,6 @@ class LaravelLiveChatCommand extends Command
         $this->info('🎨 Publishing frontend assets...');
 
         $params = [
-            '--provider' => "muba00\LaravelLiveChat\LaravelLiveChatServiceProvider",
             '--tag' => 'live-chat-frontend',
         ];
 
