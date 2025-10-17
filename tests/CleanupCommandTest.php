@@ -62,7 +62,9 @@ it('can archive messages instead of deleting', function () {
     Config::set('live-chat.storage.retention_days', 30);
     Config::set('live-chat.storage.archive_enabled', false);
     $path = storage_path('app/chat-archives');
-    if (File::exists($path)) File::deleteDirectory($path);
+    if (File::exists($path)) {
+        File::deleteDirectory($path);
+    }
     $this->artisan(CleanupMessagesCommand::class, ['--archive' => true, '--force' => true])->assertSuccessful();
     expect(Message::count())->toBe(0);
     expect(File::exists($path))->toBeTrue();
@@ -76,7 +78,9 @@ it('uses config for archiving when enabled', function () {
     Config::set('live-chat.storage.retention_days', 30);
     Config::set('live-chat.storage.archive_enabled', true);
     $path = storage_path('app/chat-archives');
-    if (File::exists($path)) File::deleteDirectory($path);
+    if (File::exists($path)) {
+        File::deleteDirectory($path);
+    }
     $this->artisan(CleanupMessagesCommand::class, ['--force' => true])->assertSuccessful();
     expect(File::exists($path))->toBeTrue();
     File::deleteDirectory($path);
@@ -134,7 +138,9 @@ it('formats archive file size correctly', function () {
     }
     Config::set('live-chat.storage.retention_days', 30);
     $path = storage_path('app/chat-archives');
-    if (File::exists($path)) File::deleteDirectory($path);
+    if (File::exists($path)) {
+        File::deleteDirectory($path);
+    }
     $this->artisan(CleanupMessagesCommand::class, ['--archive' => true, '--force' => true])->assertSuccessful();
     expect(File::exists($path))->toBeTrue();
     expect(Message::count())->toBe(0);

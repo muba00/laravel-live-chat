@@ -61,7 +61,7 @@ class TestCase extends Orchestra
             // Check if we should skip based on table existence
             // RefreshDatabase will handle dropping/recreating as needed
             $migrationClass = include $migrationPath.'/'.$migration;
-            
+
             // Only run if tables don't exist (RefreshDatabase will manage them)
             if ($migration === 'create_live_chat_conversations_table.php.stub' && Schema::hasTable('live_chat_conversations')) {
                 continue;
@@ -69,7 +69,7 @@ class TestCase extends Orchestra
             if ($migration === 'create_live_chat_messages_table.php.stub' && Schema::hasTable('live_chat_messages')) {
                 continue;
             }
-            
+
             $migrationClass->up();
         }
     }
