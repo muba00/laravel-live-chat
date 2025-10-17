@@ -7,7 +7,7 @@ uses(TestCase::class)->in(__DIR__);
 
 /**
  * Create a test user with the given name and email.
- * 
+ *
  * This is a convenience wrapper around the User factory for tests that
  * need to create users with specific attributes.
  */

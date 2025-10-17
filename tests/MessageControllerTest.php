@@ -1,10 +1,10 @@
 <?php
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Event;
 use muba00\LaravelLiveChat\Events\MessageSent;
 use muba00\LaravelLiveChat\Models\Conversation;
 use muba00\LaravelLiveChat\Models\Message;
-use Illuminate\Support\Facades\Event;
 
 uses(RefreshDatabase::class);
 
@@ -12,7 +12,7 @@ beforeEach(function () {
     $this->user1 = createUser('User One', 'user1@test.com');
     $this->user2 = createUser('User Two', 'user2@test.com');
     $this->user3 = createUser('User Three', 'user3@test.com');
-    
+
     $this->conversation = Conversation::factory()->create([
         'user1_id' => $this->user1->id,
         'user2_id' => $this->user2->id,
@@ -45,7 +45,7 @@ describe('MessageController', function () {
                 'message' => 'Old message',
                 'created_at' => now()->subHour(),
             ]);
-            
+
             $newMessage = Message::factory()->create([
                 'conversation_id' => $this->conversation->id,
                 'message' => 'New message',

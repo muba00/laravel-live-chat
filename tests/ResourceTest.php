@@ -11,7 +11,7 @@ describe('API Resources', function () {
         it('formats message correctly in API response', function () {
             $user1 = createUser('Test User', 'test@test.com');
             $user2 = createUser('Other User', 'other@test.com');
-            
+
             $conversation = Conversation::factory()->create([
                 'user1_id' => $user1->id,
                 'user2_id' => $user2->id,
@@ -53,7 +53,7 @@ describe('API Resources', function () {
         it('includes sender information when loaded', function () {
             $user1 = createUser('Test User', 'test@test.com');
             $user2 = createUser('Other User', 'other@test.com');
-            
+
             $conversation = Conversation::factory()->create([
                 'user1_id' => $user1->id,
                 'user2_id' => $user2->id,
@@ -80,7 +80,7 @@ describe('API Resources', function () {
         it('shows is_read as true when read_at is set', function () {
             $user1 = createUser('Test User', 'test@test.com');
             $user2 = createUser('Other User', 'other@test.com');
-            
+
             $conversation = Conversation::factory()->create([
                 'user1_id' => $user1->id,
                 'user2_id' => $user2->id,

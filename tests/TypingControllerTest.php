@@ -11,7 +11,7 @@ beforeEach(function () {
     $this->user1 = createUser('User One', 'user1@test.com');
     $this->user2 = createUser('User Two', 'user2@test.com');
     $this->user3 = createUser('User Three', 'user3@test.com');
-    
+
     $this->conversation = Conversation::factory()->create([
         'user1_id' => $this->user1->id,
         'user2_id' => $this->user2->id,

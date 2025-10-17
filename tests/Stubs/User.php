@@ -7,7 +7,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 
 /**
  * Test User Model
- * 
+ *
  * A simplified User model for package testing purposes.
  * Extends Laravel's Authenticatable class to provide clean authentication support.
  */

@@ -28,7 +28,7 @@ class ConversationResource extends JsonResource
             'updated_at' => $this->updated_at->toISOString(),
             'other_user' => $this->whenLoaded('user1', function () use ($currentUser) {
                 $otherUser = $this->getOtherUser($currentUser);
-                
+
                 return $otherUser ? [
                     'id' => $otherUser->id,
                     'name' => $otherUser->name ?? null,
@@ -37,7 +37,7 @@ class ConversationResource extends JsonResource
             }),
             'latest_message' => $this->whenLoaded('messages', function () {
                 $latestMessage = $this->messages->first();
-                
+
                 return $latestMessage ? new MessageResource($latestMessage) : null;
             }),
             'unread_count' => $this->when(

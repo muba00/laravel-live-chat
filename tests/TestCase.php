@@ -93,7 +93,7 @@ class TestCase extends Orchestra
             'driver' => 'eloquent',
             'model' => \muba00\LaravelLiveChat\Tests\Stubs\User::class,
         ]);
-        
+
         // Package configuration
         config()->set('live-chat.user_model', \muba00\LaravelLiveChat\Tests\Stubs\User::class);
         config()->set('live-chat.routes.middleware', ['api', 'auth:web']);
