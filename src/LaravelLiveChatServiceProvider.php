@@ -27,7 +27,6 @@ class LaravelLiveChatServiceProvider extends PackageServiceProvider
         $package
             ->name('laravel-live-chat')
             ->hasConfigFile()
-            ->hasViews()
             ->hasMigrations([
                 'create_live_chat_conversations_table',
                 'create_live_chat_messages_table',
@@ -46,7 +45,6 @@ class LaravelLiveChatServiceProvider extends PackageServiceProvider
         $this->registerBroadcastChannels();
         $this->registerRoutes();
         $this->registerPolicies();
-        $this->publishFrontendAssets();
     }
 
     /**
@@ -97,34 +95,6 @@ class LaravelLiveChatServiceProvider extends PackageServiceProvider
     protected function registerPolicies(): void
     {
         Gate::policy(Conversation::class, ConversationPolicy::class);
-    }
-
-    /**
-     * Publish frontend assets (views, JavaScript, CSS).
-     */
-    protected function publishFrontendAssets(): void
-    {
-        // Publish views (Blade components)
-        $this->publishes([
-            __DIR__.'/../resources/views' => resource_path('views/vendor/live-chat'),
-        ], 'live-chat-views');
-
-        // Publish JavaScript helpers
-        $this->publishes([
-            __DIR__.'/../resources/js' => resource_path('js/vendor/live-chat'),
-        ], 'live-chat-js');
-
-        // Publish CSS styles
-        $this->publishes([
-            __DIR__.'/../resources/css' => resource_path('css/vendor/live-chat'),
-        ], 'live-chat-css');
-
-        // Publish all frontend assets at once
-        $this->publishes([
-            __DIR__.'/../resources/views' => resource_path('views/vendor/live-chat'),
-            __DIR__.'/../resources/js' => resource_path('js/vendor/live-chat'),
-            __DIR__.'/../resources/css' => resource_path('css/vendor/live-chat'),
-        ], 'live-chat-frontend');
     }
 
     /**

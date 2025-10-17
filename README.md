@@ -13,12 +13,12 @@ A simple, elegant Laravel package that adds **real-time 1-to-1 chat** functional
 -   💬 **1-to-1 conversations** between users
 -   ✅ **Read receipts** to track message status
 -   ✍️ **Typing indicators** for better UX
--   🎨 **Ready-to-use Blade components** for quick integration
 -   🔒 **Built-in authorization** policies
--   📱 **Responsive design** with dark mode support
--   🛠️ **Highly configurable** with sensible defaults
+-   ️ **Highly configurable** with sensible defaults
 -   🧪 **Thoroughly tested** with 100+ tests
 -   📦 **Easy to remove** - clean uninstall with no residual code
+
+> **🎨 Frontend Components Coming Soon!** Complete React, Vue 3, and Livewire UI components are currently in development. For now, you can use the backend API to build your own custom frontend.
 
 ## 📋 Requirements
 
@@ -46,7 +46,6 @@ This interactive command will:
 -   Check prerequisites
 -   Publish configuration files
 -   Publish and run migrations
--   Publish frontend assets (Blade components, JS, CSS)
 -   Guide you through additional setup steps
 
 ### 3. Configure Broadcasting
@@ -93,14 +92,9 @@ $message = Message::create([
 ]);
 ```
 
-**Frontend - Display the chat UI:**
+**Frontend - Build your own custom UI:**
 
-```blade
-<x-live-chat::chat-window
-    :conversation="$conversation"
-    :currentUser="auth()->user()"
-/>
-```
+Use the provided API endpoints to build your custom chat interface. Complete frontend components for React, Vue 3, and Livewire are coming soon!
 
 ## 📖 Documentation
 
@@ -122,9 +116,6 @@ php artisan vendor:publish --tag="laravel-live-chat-migrations"
 
 # Run migrations
 php artisan migrate
-
-# Publish frontend assets (optional)
-php artisan vendor:publish --tag="live-chat-frontend"
 ```
 
 ### Configuration
@@ -246,41 +237,37 @@ $unreadCount = $conversation->unreadMessagesFor(auth()->user())->count();
 
 #### Frontend Integration
 
-##### Using Blade Components
+The package provides a RESTful API for building custom chat interfaces. Complete frontend components for React, Vue 3, and Livewire are currently in development.
 
-```blade
-{{-- Include the chat window --}}
-<x-live-chat::chat-window
-    :conversation="$conversation"
-    :currentUser="auth()->user()"
-/>
-```
-
-##### Using Vanilla JavaScript
+##### Example API Usage
 
 ```javascript
-import { LiveChatClient } from "./vendor/live-chat/chat-client.js";
+// Fetch conversations
+const response = await fetch('/chat/api/conversations', {
+    headers: {
+        'Authorization': `Bearer ${token}`,
+        'Accept': 'application/json',
+    }
+});
+const conversations = await response.json();
 
-const client = new LiveChatClient({
-    conversationId: conversationId,
-    currentUserId: currentUserId,
-    apiBaseUrl: "/chat/api",
+// Send a message
+await fetch(`/chat/api/conversations/${conversationId}/messages`, {
+    method: 'POST',
+    headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+    },
+    body: JSON.stringify({ message: 'Hello!' })
 });
 
-client.init({
-    messageListElement: document.getElementById("messages"),
-    messageInputElement: document.getElementById("message-input"),
-    sendButtonElement: document.getElementById("send-button"),
-});
+// Listen for real-time messages
+Echo.private(`chat.${conversationId}`)
+    .listen('MessageSent', (event) => {
+        console.log('New message:', event.message);
+    });
 ```
-
-##### Using Vue 3 / React / Livewire
-
-Check out the complete examples in the [docs/examples](docs/examples) directory:
-
--   [Vue 3 Example](docs/examples/vue3-example.md)
--   [React Example](docs/examples/react-example.md)
--   [Livewire Example](docs/examples/livewire-example.md)
 
 ### Broadcasting Setup
 
@@ -339,7 +326,6 @@ Options:
   --force            Overwrite existing files
   --skip-migrations  Skip publishing migrations
   --skip-config      Skip publishing config
-  --skip-assets      Skip publishing frontend assets
 ```
 
 #### Cleanup Command
@@ -378,23 +364,22 @@ The package includes built-in authorization:
 
 ### Customization
 
-#### Customize Blade Components
+#### Customize Models
 
-After publishing assets, you can customize the components in:
+You can extend the package models in your application:
 
--   `resources/views/vendor/live-chat/components/`
+```php
+namespace App\Models;
 
-#### Customize Styling
+use muba00\LaravelLiveChat\Models\Conversation as BaseConversation;
 
-Override CSS variables in your stylesheet:
-
-```css
-:root {
-    --chat-primary-color: #your-color;
-    --chat-background: #your-bg;
-    /* ... other variables */
+class Conversation extends BaseConversation
+{
+    // Add your custom methods and properties
 }
 ```
+
+Then update your config to use your custom model.
 
 #### Disable Auto-registered Routes
 
@@ -424,9 +409,6 @@ php artisan migrate:rollback
 
 # Remove published assets (optional)
 rm config/live-chat.php
-rm -rf resources/views/vendor/live-chat
-rm -rf resources/js/vendor/live-chat
-rm -rf resources/css/vendor/live-chat
 
 # Remove package
 composer remove muba00/laravel-live-chat
@@ -435,8 +417,6 @@ composer remove muba00/laravel-live-chat
 ## 📚 Additional Resources
 
 -   [API Reference](docs/api-reference.md)
--   [Frontend Integration Guide](docs/frontend-integration.md)
--   [Complete Examples](docs/examples/)
 
 ## 🐛 Troubleshooting
 
