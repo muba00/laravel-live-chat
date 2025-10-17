@@ -1,76 +1,481 @@
-# Laravel live chat
+# Laravel Live Chat
 
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/muba00/laravel-live-chat.svg?style=flat-square)](https://packagist.org/packages/muba00/laravel-live-chat)
 [![GitHub Tests Action Status](https://img.shields.io/github/actions/workflow/status/muba00/laravel-live-chat/run-tests.yml?branch=main&label=tests&style=flat-square)](https://github.com/muba00/laravel-live-chat/actions?query=workflow%3Arun-tests+branch%3Amain)
 [![GitHub Code Style Action Status](https://img.shields.io/github/actions/workflow/status/muba00/laravel-live-chat/fix-php-code-style-issues.yml?branch=main&label=code%20style&style=flat-square)](https://github.com/muba00/laravel-live-chat/actions?query=workflow%3A"Fix+PHP+code+style+issues"+branch%3Amain)
 [![Total Downloads](https://img.shields.io/packagist/dt/muba00/laravel-live-chat.svg?style=flat-square)](https://packagist.org/packages/muba00/laravel-live-chat)
 
-A Laravel package that adds real time live chat functionality to your application.
+A simple, elegant Laravel package that adds **real-time 1-to-1 chat** functionality to your application using **Laravel Reverb**. Easy to install, easy to use, and follows Laravel best practices.
 
-## Installation
+## ✨ Features
 
-You can install the package via composer:
+-   🚀 **Real-time messaging** using Laravel Reverb WebSockets
+-   💬 **1-to-1 conversations** between users
+-   ✅ **Read receipts** to track message status
+-   ✍️ **Typing indicators** for better UX
+-   🎨 **Ready-to-use Blade components** for quick integration
+-   🔒 **Built-in authorization** policies
+-   📱 **Responsive design** with dark mode support
+-   🛠️ **Highly configurable** with sensible defaults
+-   🧪 **Thoroughly tested** with 100+ tests
+-   📦 **Easy to remove** - clean uninstall with no residual code
+
+## 📋 Requirements
+
+-   PHP 8.3+
+-   Laravel 11.0+
+-   Laravel Reverb (for real-time features)
+-   Laravel Sanctum (for API authentication)
+
+## 🚀 Quick Start
+
+### 1. Install the Package
 
 ```bash
 composer require muba00/laravel-live-chat
 ```
 
-You can publish and run the migrations with:
+### 2. Run the Installer
 
 ```bash
-php artisan vendor:publish --tag="laravel-live-chat-migrations"
-php artisan migrate
+php artisan live-chat:install
 ```
 
-You can publish the config file with:
+This interactive command will:
+
+-   Check prerequisites
+-   Publish configuration files
+-   Publish and run migrations
+-   Publish frontend assets (Blade components, JS, CSS)
+-   Guide you through additional setup steps
+
+### 3. Configure Broadcasting
+
+Install Laravel Reverb:
 
 ```bash
+composer require laravel/reverb
+php artisan reverb:install
+```
+
+### 4. Configure Authentication
+
+If not already done, install Laravel Sanctum:
+
+```bash
+composer require laravel/sanctum
+php artisan install:api
+```
+
+### 5. Install Frontend Dependencies
+
+```bash
+npm install --save-dev laravel-echo pusher-js
+npm run build
+```
+
+### 6. Start Using the Chat!
+
+**Backend - Create a conversation and send a message:**
+
+```php
+use muba00\LaravelLiveChat\Models\Conversation;
+use muba00\LaravelLiveChat\Models\Message;
+
+// Get or create a conversation between two users
+$conversation = Conversation::between(auth()->user(), $otherUser);
+
+// Send a message
+$message = Message::create([
+    'conversation_id' => $conversation->id,
+    'sender_id' => auth()->id(),
+    'message' => 'Hello! How are you?',
+]);
+```
+
+**Frontend - Display the chat UI:**
+
+```blade
+<x-live-chat::chat-window
+    :conversation="$conversation"
+    :currentUser="auth()->user()"
+/>
+```
+
+## 📖 Documentation
+
+### Installation
+
+#### Manual Installation (Alternative)
+
+If you prefer to install manually instead of using the installer command:
+
+```bash
+# Install package
+composer require muba00/laravel-live-chat
+
+# Publish config
 php artisan vendor:publish --tag="laravel-live-chat-config"
+
+# Publish migrations
+php artisan vendor:publish --tag="laravel-live-chat-migrations"
+
+# Run migrations
+php artisan migrate
+
+# Publish frontend assets (optional)
+php artisan vendor:publish --tag="live-chat-frontend"
 ```
 
-This is the contents of the published config file:
+### Configuration
+
+The package configuration file is published to `config/live-chat.php`. Here are the key configuration options:
 
 ```php
 return [
+    // User model configuration
+    'user_model' => 'App\\Models\\User',
+
+    // Customize table names
+    'tables' => [
+        'conversations' => 'live_chat_conversations',
+        'messages' => 'live_chat_messages',
+    ],
+
+    // API routes configuration
+    'routes' => [
+        'enabled' => true,
+        'prefix' => 'chat/api',
+        'middleware' => ['api', 'auth:sanctum'],
+    ],
+
+    // Broadcasting settings
+    'broadcasting' => [
+        'enabled' => true,
+        'channel_prefix' => 'chat',
+    ],
+
+    // Pagination
+    'pagination' => [
+        'messages_per_page' => 50,
+        'conversations_per_page' => 20,
+    ],
+
+    // Message retention and storage
+    'storage' => [
+        'retention_days' => null, // null = keep forever
+        'archive_enabled' => false,
+        'max_message_length' => 5000,
+    ],
+
+    // Feature toggles
+    'features' => [
+        'read_receipts' => true,
+        'typing_indicators' => true,
+    ],
+
+    // Security settings
+    'security' => [
+        'sanitize_messages' => true,
+        'max_conversations_per_user' => 100,
+    ],
 ];
 ```
 
-Optionally, you can publish the views using
+#### Environment Variables
 
-```bash
-php artisan vendor:publish --tag="laravel-live-chat-views"
+You can override configuration using environment variables:
+
+```env
+CHAT_USER_MODEL="App\Models\User"
+CHAT_MESSAGES_PER_PAGE=50
+CHAT_CONVERSATIONS_PER_PAGE=20
+CHAT_RETENTION_DAYS=90
+CHAT_CACHE_ENABLED=true
+CHAT_CACHE_TTL=3600
 ```
 
-## Usage
+### Usage
+
+#### Backend API
+
+The package automatically registers RESTful API routes:
+
+```
+POST   /chat/api/conversations                           # Create/get conversation
+GET    /chat/api/conversations                           # List user's conversations
+GET    /chat/api/conversations/{id}                      # Get conversation details
+DELETE /chat/api/conversations/{id}                      # Delete conversation
+
+GET    /chat/api/conversations/{id}/messages             # Get messages
+POST   /chat/api/conversations/{id}/messages             # Send message
+POST   /chat/api/conversations/{id}/messages/mark-read   # Mark messages as read
+GET    /chat/api/conversations/{id}/messages/unread-count # Get unread count
+
+POST   /chat/api/conversations/{id}/typing               # Broadcast typing indicator
+```
+
+#### Using Models
 
 ```php
-$laravelLiveChat = new muba00\LaravelLiveChat();
-echo $laravelLiveChat->echoPhrase('Hello, muba00!');
+use muba00\LaravelLiveChat\Models\Conversation;
+use muba00\LaravelLiveChat\Models\Message;
+
+// Get or create a conversation
+$conversation = Conversation::between($user1, $user2);
+
+// Check if a user is part of a conversation
+$conversation->includesUser($user);
+
+// Get the other user in a conversation
+$otherUser = $conversation->getOtherUser(auth()->user());
+
+// Send a message
+$message = Message::create([
+    'conversation_id' => $conversation->id,
+    'sender_id' => auth()->id(),
+    'message' => 'Hello!',
+]);
+
+// Mark messages as read
+$conversation->markAsReadBy(auth()->user());
+
+// Get unread message count
+$unreadCount = $conversation->unreadMessagesFor(auth()->user())->count();
 ```
 
-## Testing
+#### Frontend Integration
+
+##### Using Blade Components
+
+```blade
+{{-- Include the chat window --}}
+<x-live-chat::chat-window
+    :conversation="$conversation"
+    :currentUser="auth()->user()"
+/>
+```
+
+##### Using Vanilla JavaScript
+
+```javascript
+import { LiveChatClient } from "./vendor/live-chat/chat-client.js";
+
+const client = new LiveChatClient({
+    conversationId: conversationId,
+    currentUserId: currentUserId,
+    apiBaseUrl: "/chat/api",
+});
+
+client.init({
+    messageListElement: document.getElementById("messages"),
+    messageInputElement: document.getElementById("message-input"),
+    sendButtonElement: document.getElementById("send-button"),
+});
+```
+
+##### Using Vue 3 / React / Livewire
+
+Check out the complete examples in the [docs/examples](docs/examples) directory:
+
+-   [Vue 3 Example](docs/examples/vue3-example.md)
+-   [React Example](docs/examples/react-example.md)
+-   [Livewire Example](docs/examples/livewire-example.md)
+
+### Broadcasting Setup
+
+#### Configure Laravel Reverb
+
+Add to your `.env`:
+
+```env
+BROADCAST_CONNECTION=reverb
+
+REVERB_APP_ID=your-app-id
+REVERB_APP_KEY=your-app-key
+REVERB_APP_SECRET=your-app-secret
+REVERB_HOST="localhost"
+REVERB_PORT=8080
+REVERB_SCHEME=http
+```
+
+#### Setup Laravel Echo
+
+In your `resources/js/bootstrap.js`:
+
+```javascript
+import Echo from "laravel-echo";
+import Pusher from "pusher-js";
+
+window.Pusher = Pusher;
+
+window.Echo = new Echo({
+    broadcaster: "reverb",
+    key: import.meta.env.VITE_REVERB_APP_KEY,
+    wsHost: import.meta.env.VITE_REVERB_HOST,
+    wsPort: import.meta.env.VITE_REVERB_PORT ?? 80,
+    wssPort: import.meta.env.VITE_REVERB_PORT ?? 443,
+    forceTLS: (import.meta.env.VITE_REVERB_SCHEME ?? "https") === "https",
+    enabledTransports: ["ws", "wss"],
+});
+```
+
+#### Start Reverb Server
+
+```bash
+php artisan reverb:start
+```
+
+For production, use a process manager like Supervisor.
+
+### Artisan Commands
+
+#### Install Command
+
+```bash
+php artisan live-chat:install [options]
+
+Options:
+  --force            Overwrite existing files
+  --skip-migrations  Skip publishing migrations
+  --skip-config      Skip publishing config
+  --skip-assets      Skip publishing frontend assets
+```
+
+#### Cleanup Command
+
+```bash
+php artisan live-chat:cleanup [options]
+
+Options:
+  --days=X          Number of days to retain (overrides config)
+  --archive         Archive messages instead of deleting
+  --dry-run         Show what would be deleted without deleting
+  --force           Skip confirmation prompt
+```
+
+**Schedule cleanup automatically:**
+
+```php
+// In app/Console/Kernel.php
+protected function schedule(Schedule $schedule)
+{
+    // Clean up messages older than 90 days, daily at 2 AM
+    $schedule->command('live-chat:cleanup --days=90 --force')
+        ->dailyAt('02:00');
+}
+```
+
+### Security
+
+The package includes built-in authorization:
+
+-   Users can only access conversations they're part of
+-   Messages are validated before storage
+-   XSS protection via message sanitization
+-   Rate limiting support
+-   Private broadcast channels with authorization
+
+### Customization
+
+#### Customize Blade Components
+
+After publishing assets, you can customize the components in:
+
+-   `resources/views/vendor/live-chat/components/`
+
+#### Customize Styling
+
+Override CSS variables in your stylesheet:
+
+```css
+:root {
+    --chat-primary-color: #your-color;
+    --chat-background: #your-bg;
+    /* ... other variables */
+}
+```
+
+#### Disable Auto-registered Routes
+
+```php
+// In config/live-chat.php
+'routes' => [
+    'enabled' => false,
+],
+```
+
+Then register routes manually in your `routes/api.php`.
+
+## 🧪 Testing
 
 ```bash
 composer test
+composer test-coverage
+composer analyse
+composer format
 ```
 
-## Changelog
+## 🗑️ Uninstalling
 
-Please see [CHANGELOG](CHANGELOG.md) for more information on what has changed recently.
+```bash
+# Rollback migrations
+php artisan migrate:rollback
 
-## Contributing
+# Remove published assets (optional)
+rm config/live-chat.php
+rm -rf resources/views/vendor/live-chat
+rm -rf resources/js/vendor/live-chat
+rm -rf resources/css/vendor/live-chat
+
+# Remove package
+composer remove muba00/laravel-live-chat
+```
+
+## 📚 Additional Resources
+
+-   [API Reference](docs/api-reference.md)
+-   [Frontend Integration Guide](docs/frontend-integration.md)
+-   [Complete Examples](docs/examples/)
+
+## 🐛 Troubleshooting
+
+### Messages not appearing in real-time
+
+1. Check Reverb is running: `php artisan reverb:start`
+2. Verify `.env` configuration for Reverb
+3. Check browser console for WebSocket errors
+4. Ensure Laravel Echo is properly initialized
+
+### Authorization errors
+
+1. Verify Sanctum is installed and configured
+2. Check API token is being sent in requests
+3. Ensure user is part of the conversation
+
+### Database errors
+
+1. Run migrations: `php artisan migrate`
+2. Check table names in config match your setup
+3. Verify user model configuration
+
+## 🤝 Contributing
 
 Please see [CONTRIBUTING](CONTRIBUTING.md) for details.
 
-## Security Vulnerabilities
+## 🔒 Security Vulnerabilities
 
 Please review [our security policy](../../security/policy) on how to report security vulnerabilities.
 
-## Credits
+## 📝 Changelog
+
+Please see [CHANGELOG](CHANGELOG.md) for more information on what has changed recently.
+
+## 👏 Credits
 
 -   [Mubariz Hajimuradov](https://github.com/muba00)
 -   [All Contributors](../../contributors)
 
-## License
+## 📄 License
 
 The MIT License (MIT). Please see [License File](LICENSE.md) for more information.

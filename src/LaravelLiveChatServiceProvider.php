@@ -5,6 +5,7 @@ namespace muba00\LaravelLiveChat;
 use Illuminate\Support\Facades\Broadcast;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Route;
+use muba00\LaravelLiveChat\Commands\CleanupMessagesCommand;
 use muba00\LaravelLiveChat\Commands\LaravelLiveChatCommand;
 use muba00\LaravelLiveChat\Http\Controllers\ConversationController;
 use muba00\LaravelLiveChat\Http\Controllers\MessageController;
@@ -31,7 +32,10 @@ class LaravelLiveChatServiceProvider extends PackageServiceProvider
                 'create_live_chat_conversations_table',
                 'create_live_chat_messages_table',
             ])
-            ->hasCommand(LaravelLiveChatCommand::class);
+            ->hasCommands([
+                LaravelLiveChatCommand::class,
+                CleanupMessagesCommand::class,
+            ]);
     }
 
     /**
