@@ -2,6 +2,11 @@
 
 All notable changes to `laravel-live-chat` will be documented in this file.
 
+## 0.0.2 - 2025-10-17
+
+### Fixed
+- Fixed `live-chat:install` command not publishing migrations - corrected tag names from `laravel-live-chat-*` to `live-chat-*` to match Spatie package tools convention
+
 ## 0.0.1 - 2025-10-17
 
 Initial release of Laravel Live Chat package.
