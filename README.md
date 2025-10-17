@@ -243,30 +243,29 @@ The package provides a RESTful API for building custom chat interfaces. Complete
 
 ```javascript
 // Fetch conversations
-const response = await fetch('/chat/api/conversations', {
+const response = await fetch("/chat/api/conversations", {
     headers: {
-        'Authorization': `Bearer ${token}`,
-        'Accept': 'application/json',
-    }
+        Authorization: `Bearer ${token}`,
+        Accept: "application/json",
+    },
 });
 const conversations = await response.json();
 
 // Send a message
 await fetch(`/chat/api/conversations/${conversationId}/messages`, {
-    method: 'POST',
+    method: "POST",
     headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+        Accept: "application/json",
     },
-    body: JSON.stringify({ message: 'Hello!' })
+    body: JSON.stringify({ message: "Hello!" }),
 });
 
 // Listen for real-time messages
-Echo.private(`chat.${conversationId}`)
-    .listen('MessageSent', (event) => {
-        console.log('New message:', event.message);
-    });
+Echo.private(`chat.${conversationId}`).listen("MessageSent", (event) => {
+    console.log("New message:", event.message);
+});
 ```
 
 ### Broadcasting Setup
