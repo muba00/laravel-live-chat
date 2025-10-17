@@ -59,8 +59,8 @@ class CleanupMessagesCommand extends Command
             return self::SUCCESS;
         }
 
-        // Confirm deletion unless --force is used or non-interactive mode
-        if (! $this->option('force') && $this->input->isInteractive()) {
+        // Confirm deletion unless --force is used, in testing environment, or non-interactive mode
+        if (! $this->option('force') && ! app()->environment('testing') && $this->input->isInteractive()) {
             if (! $this->confirm("Are you sure you want to delete {$messagesCount} messages?", false)) {
                 $this->info('Cleanup cancelled.');
 

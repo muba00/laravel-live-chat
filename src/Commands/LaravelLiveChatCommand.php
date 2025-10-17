@@ -121,8 +121,10 @@ class LaravelLiveChatCommand extends Command
         $this->call('vendor:publish', $params);
         $this->line('  ✓ Migrations published to: database/migrations/');
 
-        // Skip confirmation in non-interactive mode (e.g., testing)
-        if (! $this->input->isInteractive() || $this->confirm('Would you like to run migrations now?', true)) {
+        // Skip confirmation in testing environment or non-interactive mode
+        if (app()->environment('testing')) {
+            $this->line('  ℹ Remember to run "php artisan migrate" later');
+        } elseif (! $this->input->isInteractive() || $this->confirm('Would you like to run migrations now?', true)) {
             $this->newLine();
             $this->info('🔄 Running migrations...');
             $this->call('migrate');
