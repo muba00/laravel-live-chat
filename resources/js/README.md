@@ -1,0 +1,397 @@
+# Laravel Live Chat - React Package
+
+**Status**: Phase 1 Complete - Foundation & Architecture
+
+This directory contains the React component library for Laravel Live Chat. The package provides production-ready, fully-featured chat UI components for Laravel applications.
+
+## 📁 Project Structure
+
+```
+resources/js/
+├── react/                      # React source code
+│   ├── components/            # React components (Phase 2)
+│   ├── contexts/              # Context providers ✅
+│   │   ├── ConversationsContext.tsx
+│   │   ├── MessagesContext.tsx
+│   │   ├── ConnectionContext.tsx
+│   │   └── UIContext.tsx
+│   ├── hooks/                 # Custom React hooks (Phase 2)
+│   ├── lib/                   # Core libraries ✅
+│   │   ├── api-client.ts      # API client (fetch-based)
+│   │   └── websocket-manager.ts  # WebSocket manager (Echo wrapper)
+│   ├── styles/                # CSS files ✅
+│   │   ├── live-chat.css      # Main stylesheet with CSS variables
+│   │   └── README.md          # CSS architecture documentation
+│   ├── types/                 # TypeScript types ✅
+│   │   └── index.ts
+│   └── index.ts               # Package entry point ✅
+├── .storybook/                # Storybook configuration ✅
+│   ├── main.ts
+│   └── preview.ts
+├── package.json               # NPM dependencies ✅
+├── tsconfig.json              # TypeScript configuration ✅
+├── tsconfig.node.json         # Node TypeScript config ✅
+├── vite.config.ts             # Vite build configuration ✅
+├── vitest.config.ts           # Vitest test configuration ✅
+├── vitest.setup.ts            # Test setup ✅
+├── .eslintrc.cjs              # ESLint configuration ✅
+├── .gitignore                 # Git ignore rules ✅
+└── README.md                  # This file ✅
+```
+
+## ✅ Phase 1 Complete - Foundation & Architecture
+
+### What's Been Implemented
+
+1. **✅ NPM Workspace Structure**
+   - Complete `package.json` with all dependencies
+   - React, TypeScript, Vite, Vitest, Storybook, Testing Library
+   - Zero-config installation for developers
+
+2. **✅ Vite Build Configuration**
+   - ESM output for modern tree-shaking
+   - Library mode for package distribution
+   - TypeScript support with strict mode
+   - Path aliases for clean imports
+
+3. **✅ CSS Architecture**
+   - BEM naming convention (`.lc-` prefix)
+   - Comprehensive CSS variables for theming
+   - Light/Dark mode support
+   - Mobile-first responsive design
+   - Zero external CSS dependencies
+
+4. **✅ Design System**
+   - Color palette (primary, semantic colors)
+   - Spacing scale (xs to 3xl)
+   - Typography system
+   - Border radius tokens
+   - Shadow system
+   - Z-index scale
+   - Transition timings
+
+5. **✅ React Context Architecture**
+   - **ConversationsContext**: Manages conversation list, active conversation, sorting
+   - **MessagesContext**: Manages messages per conversation, optimistic updates
+   - **ConnectionContext**: Manages WebSocket connection state
+   - **UIContext**: Manages UI state (sidebar, modals, theme, mobile detection)
+
+6. **✅ API Client Module**
+   - Plain `fetch`-based HTTP client
+   - Zero dependencies
+   - Type-safe methods for all endpoints
+   - Error handling and timeout support
+   - CSRF token integration
+   - Bearer token support
+
+7. **✅ WebSocket Manager**
+   - Laravel Echo wrapper
+   - Pusher integration
+   - Channel subscription management
+   - Event listener system
+   - Automatic reconnection handling
+   - Type-safe event callbacks
+
+8. **✅ Storybook Setup**
+   - Configured for component development
+   - Theme switching support
+   - Background presets (light/dark)
+   - Auto-documentation
+
+9. **✅ Testing Environment**
+   - Vitest + React Testing Library
+   - Coverage reporting
+   - jsdom environment
+   - Test utilities and mocks
+
+## 🎨 CSS Architecture
+
+### BEM Naming Convention
+
+All CSS classes follow BEM (Block Element Modifier) with the `.lc-` prefix:
+
+```css
+.lc-block__element--modifier
+```
+
+Examples:
+```css
+.lc-conversation              /* Block */
+.lc-conversation__item        /* Element */
+.lc-conversation__item--active /* Modifier */
+```
+
+### CSS Variables
+
+All design tokens are defined as CSS variables:
+
+```css
+/* Colors */
+--lc-color-primary
+--lc-color-background
+--lc-color-text
+
+/* Spacing */
+--lc-space-sm
+--lc-space-md
+--lc-space-lg
+
+/* Typography */
+--lc-font-size-base
+--lc-font-weight-medium
+
+/* And many more... */
+```
+
+### Theming
+
+Toggle between light and dark mode:
+
+```jsx
+<div data-theme="dark">
+  <LiveChat userId={1} />
+</div>
+```
+
+Or customize colors:
+
+```css
+:root {
+  --lc-color-primary: #7c3aed; /* Custom purple */
+  --lc-sidebar-width: 24rem;   /* Wider sidebar */
+}
+```
+
+## 🏗️ Architecture Decisions
+
+### State Management
+
+**React Context + useReducer** instead of external libraries (Zustand, Redux)
+
+✅ Pros:
+- Zero dependencies
+- Built into React
+- Sufficient for chat complexity
+- Split contexts prevent unnecessary re-renders
+
+❌ Cons:
+- More boilerplate than Zustand
+- Manual optimization required
+
+**Decision**: Simplicity and zero dependencies win
+
+### Styling
+
+**Vanilla CSS with CSS Variables** instead of CSS-in-JS or Tailwind
+
+✅ Pros:
+- Zero runtime overhead
+- Easy customization without JS
+- Runtime theme switching
+- Works with any framework
+- No build dependencies
+
+❌ Cons:
+- No scoping (mitigated by BEM)
+- More manual work
+
+**Decision**: Performance and flexibility win
+
+### API Client
+
+**Plain `fetch`** instead of axios or ky
+
+✅ Pros:
+- Built into browsers
+- Zero dependencies
+- Sufficient for our needs
+- Modern browsers support natively
+
+❌ Cons:
+- More manual error handling
+- No request/response interceptors
+
+**Decision**: Native browser API wins
+
+### Build System
+
+**Vite** for all builds (dev, production, Storybook)
+
+✅ Pros:
+- Fast HMR
+- Native ESM
+- Tree-shaking
+- TypeScript support
+- Small bundle size
+
+❌ Cons:
+- None for our use case
+
+**Decision**: Modern, fast, and widely adopted
+
+## 📦 Package Distribution
+
+The package will be distributed as **source files** (not pre-built):
+
+### Why Source Distribution?
+
+1. Developers already have Vite in Laravel 9.19+
+2. Allows full customization without ejecting
+3. Smaller package size
+4. No React/Vue version conflicts
+5. Tree-shaking benefits
+6. Developer optimizes for their browsers
+
+### Installation (Coming in Phase 6)
+
+```bash
+php artisan live-chat:install --framework=react
+```
+
+This will:
+- Publish React source files to `resources/js/components/`
+- Publish CSS to `resources/css/`
+- Update `vite.config.js` if needed
+- Show installation instructions
+
+## 🧪 Development Scripts
+
+```bash
+# Install dependencies
+npm install
+
+# Start Vite dev server
+npm run dev
+
+# Build for production
+npm run build
+
+# Run tests
+npm test
+
+# Run tests with UI
+npm run test:ui
+
+# Run tests with coverage
+npm run test:coverage
+
+# Start Storybook
+npm run storybook
+
+# Build Storybook
+npm run build-storybook
+
+# Lint code
+npm run lint
+
+# Type check
+npm run type-check
+```
+
+## 🎯 Next Steps - Phase 2
+
+Phase 2 will implement the core React component:
+
+1. **Main LiveChat Component**
+   - Single component with all features
+   - Props: `userId`, `apiUrl`, `theme`, `height`, `width`
+   - Internal sub-components (not exported)
+
+2. **Sub-Components** (Internal only)
+   - ConversationList
+   - ChatWindow
+   - MessageInput
+   - NewConversation modal
+   - ToastNotification
+
+3. **Custom Hooks**
+   - `useConversationsData` - Load/manage conversations
+   - `useMessagesData` - Load/manage messages
+   - `useWebSocket` - WebSocket connection
+   - `useTypingIndicator` - Typing status
+   - `useOptimisticUpdate` - Optimistic UI updates
+
+## 📚 Type Safety
+
+All components, hooks, and utilities are fully typed with TypeScript:
+
+```typescript
+import type { LiveChatProps, Conversation, Message } from '@muba00/laravel-live-chat-react';
+```
+
+## 🔌 API Endpoints Expected
+
+The React component expects these Laravel endpoints:
+
+```
+GET    /conversations
+GET    /conversations/{id}
+POST   /conversations
+DELETE /conversations/{id}
+POST   /conversations/{id}/read
+
+GET    /conversations/{id}/messages
+POST   /conversations/{id}/messages
+DELETE /conversations/{id}/messages/{messageId}
+POST   /conversations/{id}/messages/{messageId}/read
+
+GET    /users/search
+GET    /user
+
+POST   /conversations/{id}/typing
+```
+
+## 📡 WebSocket Events Expected
+
+The component listens to these Laravel Echo events:
+
+```
+private-conversation.{id}:
+  - .message.sent
+  - .message.read
+  - .typing
+
+private-user.{userId}:
+  - (global user events)
+
+presence-chat-users:
+  - here
+  - joining
+  - leaving
+```
+
+## 🎨 Customization Examples
+
+### Custom Colors
+
+```css
+:root {
+  --lc-color-primary: #7c3aed;
+  --lc-color-primary-hover: #6d28d9;
+}
+```
+
+### Custom Spacing
+
+```css
+:root {
+  --lc-space-md: 1rem;
+  --lc-space-lg: 1.5rem;
+}
+```
+
+### Custom Sidebar Width
+
+```css
+:root {
+  --lc-sidebar-width: 24rem;
+}
+```
+
+## 🤝 Contributing
+
+See the main project README for contribution guidelines.
+
+## 📄 License
+
+MIT License - see LICENSE.md for details
