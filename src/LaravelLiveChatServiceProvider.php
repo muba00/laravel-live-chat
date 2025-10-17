@@ -3,8 +3,14 @@
 namespace muba00\LaravelLiveChat;
 
 use Illuminate\Support\Facades\Broadcast;
+use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Route;
 use muba00\LaravelLiveChat\Commands\LaravelLiveChatCommand;
+use muba00\LaravelLiveChat\Http\Controllers\ConversationController;
+use muba00\LaravelLiveChat\Http\Controllers\MessageController;
+use muba00\LaravelLiveChat\Http\Controllers\TypingController;
 use muba00\LaravelLiveChat\Models\Conversation;
+use muba00\LaravelLiveChat\Policies\ConversationPolicy;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
 
@@ -34,7 +40,59 @@ class LaravelLiveChatServiceProvider extends PackageServiceProvider
     public function packageBooted(): void
     {
         $this->registerBroadcastChannels();
+        $this->registerRoutes();
+        $this->registerPolicies();
         $this->publishFrontendAssets();
+    }
+
+    /**
+     * Register the package routes.
+     */
+    protected function registerRoutes(): void
+    {
+        if (! config('live-chat.routes.enabled', true)) {
+            return;
+        }
+
+        $routeConfig = config('live-chat.routes', []);
+        $prefix = $routeConfig['prefix'] ?? 'chat/api';
+        $middleware = $routeConfig['middleware'] ?? ['api', 'auth:sanctum'];
+
+        Route::prefix($prefix)
+            ->middleware($middleware)
+            ->group(function () {
+                // Conversation routes
+                Route::get('/conversations', [ConversationController::class, 'index'])
+                    ->name('chat.conversations.index');
+                Route::post('/conversations', [ConversationController::class, 'store'])
+                    ->name('chat.conversations.store');
+                Route::get('/conversations/{conversationId}', [ConversationController::class, 'show'])
+                    ->name('chat.conversations.show');
+                Route::delete('/conversations/{conversationId}', [ConversationController::class, 'destroy'])
+                    ->name('chat.conversations.destroy');
+
+                // Message routes
+                Route::get('/conversations/{conversationId}/messages', [MessageController::class, 'index'])
+                    ->name('chat.messages.index');
+                Route::post('/conversations/{conversationId}/messages', [MessageController::class, 'store'])
+                    ->name('chat.messages.store');
+                Route::post('/conversations/{conversationId}/messages/mark-read', [MessageController::class, 'markAsRead'])
+                    ->name('chat.messages.markAsRead');
+                Route::get('/conversations/{conversationId}/messages/unread-count', [MessageController::class, 'unreadCount'])
+                    ->name('chat.messages.unreadCount');
+
+                // Typing indicator routes
+                Route::post('/conversations/{conversationId}/typing', [TypingController::class, 'store'])
+                    ->name('chat.typing.store');
+            });
+    }
+
+    /**
+     * Register the package policies.
+     */
+    protected function registerPolicies(): void
+    {
+        Gate::policy(Conversation::class, ConversationPolicy::class);
     }
 
     /**

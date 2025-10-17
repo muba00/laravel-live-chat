@@ -17,26 +17,33 @@ class TestCase extends Orchestra
     {
         parent::setUp();
 
+        // Configure factory namespace resolution for package factories
         Factory::guessFactoryNamesUsing(
             fn (string $modelName) => 'muba00\\LaravelLiveChat\\Database\\Factories\\'.class_basename($modelName).'Factory'
         );
 
-        // Create users table for testing (exception - not part of package)
-        if (! Schema::hasTable('users')) {
-            Schema::create('users', function (Blueprint $table) {
-                $table->id();
-                $table->string('name');
-                $table->string('email')->unique();
-                $table->timestamps();
-            });
-        }
+        // Create users table for testing (not part of package - for test User model only)
+        $this->createUsersTable();
 
-        // Run package migration stubs
+        // Run package migrations
         $this->runPackageMigrations();
     }
 
     /**
-     * Run migration stubs for testing
+     * Create the users table for testing purposes.
+     */
+    protected function createUsersTable(): void
+    {
+        Schema::create('users', function (Blueprint $table) {
+            $table->id();
+            $table->string('name');
+            $table->string('email')->unique();
+            $table->timestamps();
+        });
+    }
+
+    /**
+     * Run package migration stubs.
      */
     protected function runPackageMigrations(): void
     {
@@ -52,23 +59,43 @@ class TestCase extends Orchestra
         }
     }
 
-    protected function getPackageProviders($app)
+    /**
+     * Get package service providers.
+     */
+    protected function getPackageProviders($app): array
     {
         return [
             LaravelLiveChatServiceProvider::class,
         ];
     }
 
-    protected function getEnvironmentSetUp($app)
+    /**
+     * Configure the test environment.
+     */
+    protected function getEnvironmentSetUp($app): void
     {
+        // Database configuration
         config()->set('database.default', 'testing');
         config()->set('database.connections.testing', [
             'driver' => 'sqlite',
             'database' => ':memory:',
             'prefix' => '',
+            'foreign_key_constraints' => true,
         ]);
 
-        // Enable foreign key constraints for SQLite
-        config()->set('database.connections.testing.foreign_key_constraints', true);
+        // Authentication configuration (using web guard instead of Sanctum for simplicity)
+        config()->set('auth.defaults.guard', 'web');
+        config()->set('auth.guards.web', [
+            'driver' => 'session',
+            'provider' => 'users',
+        ]);
+        config()->set('auth.providers.users', [
+            'driver' => 'eloquent',
+            'model' => \muba00\LaravelLiveChat\Tests\Stubs\User::class,
+        ]);
+        
+        // Package configuration
+        config()->set('live-chat.user_model', \muba00\LaravelLiveChat\Tests\Stubs\User::class);
+        config()->set('live-chat.routes.middleware', ['api', 'auth:web']);
     }
 }
