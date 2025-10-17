@@ -289,7 +289,7 @@ it('formats archive file size correctly', function () {
 it('handles deletion errors gracefully', function () {
     // This test would require mocking to simulate a database error
     // For now, we'll just verify the command can handle exceptions
-    
+
     Config::set('live-chat.storage.retention_days', 30);
 
     // Create a message that's old

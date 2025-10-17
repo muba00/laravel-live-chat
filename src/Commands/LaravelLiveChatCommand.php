@@ -3,7 +3,6 @@
 namespace muba00\LaravelLiveChat\Commands;
 
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\File;
 
 class LaravelLiveChatCommand extends Command
 {
