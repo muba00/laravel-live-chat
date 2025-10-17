@@ -34,12 +34,15 @@ class TestCase extends Orchestra
      */
     protected function createUsersTable(): void
     {
-        Schema::create('users', function (Blueprint $table) {
-            $table->id();
-            $table->string('name');
-            $table->string('email')->unique();
-            $table->timestamps();
-        });
+        if (! Schema::hasTable('users')) {
+            Schema::create('users', function (Blueprint $table) {
+                $table->id();
+                $table->string('name');
+                $table->string('email')->unique();
+                $table->string('password');
+                $table->timestamps();
+            });
+        }
     }
 
     /**
@@ -55,7 +58,19 @@ class TestCase extends Orchestra
         ];
 
         foreach ($migrations as $migration) {
-            (include $migrationPath.'/'.$migration)->up();
+            // Check if we should skip based on table existence
+            // RefreshDatabase will handle dropping/recreating as needed
+            $migrationClass = include $migrationPath.'/'.$migration;
+            
+            // Only run if tables don't exist (RefreshDatabase will manage them)
+            if ($migration === 'create_live_chat_conversations_table.php.stub' && Schema::hasTable('live_chat_conversations')) {
+                continue;
+            }
+            if ($migration === 'create_live_chat_messages_table.php.stub' && Schema::hasTable('live_chat_messages')) {
+                continue;
+            }
+            
+            $migrationClass->up();
         }
     }
 
