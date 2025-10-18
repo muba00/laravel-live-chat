@@ -14,7 +14,8 @@ npm install react react-dom laravel-echo pusher-js
 
 ```tsx
 import { LiveChat } from "@muba00/laravel-live-chat-react";
-import "@muba00/laravel-live-chat-react/styles";
+// Import pre-compiled CSS (production-ready, no Tailwind needed)
+import "@muba00/laravel-live-chat-react/dist/live-chat.css";
 
 function App() {
     return <LiveChat userId={1} />;
@@ -25,7 +26,8 @@ function App() {
 
 ```tsx
 import { LiveChat } from "@muba00/laravel-live-chat-react";
-import "@muba00/laravel-live-chat-react/styles";
+// Import pre-compiled CSS (production-ready, no Tailwind needed)
+import "@muba00/laravel-live-chat-react/dist/live-chat.css";
 
 function App() {
     return (
@@ -89,6 +91,34 @@ Override CSS variables in your stylesheet:
 ### All Theme Variables
 
 See `resources/js/react/styles/variables.css` for the complete list of 50+ CSS variables you can customize.
+
+## CSS Compilation
+
+The package ships with **pre-compiled, production-ready CSS**:
+
+-   ✅ **Minified**: Optimized for production (9.6KB minified, ~2.4KB gzipped)
+-   ✅ **Autoprefixed**: Works across all modern browsers
+-   ✅ **No Tailwind required**: Completely independent, no build config needed
+-   ✅ **Source maps included**: For debugging in development
+
+### Using Pre-compiled CSS (Recommended)
+
+```tsx
+// Import the compiled CSS - works immediately, no build config needed
+import "@muba00/laravel-live-chat-react/dist/live-chat.css";
+```
+
+### Using Source CSS (Advanced)
+
+If you need to customize the CSS build process:
+
+```tsx
+// Import source CSS (requires PostCSS setup in your project)
+import "@muba00/laravel-live-chat-react/styles";
+// or import specific files:
+import "@muba00/laravel-live-chat-react/styles/variables.css";
+import "@muba00/laravel-live-chat-react/styles/live-chat.css";
+```
 
 ## Responsive Behavior
 

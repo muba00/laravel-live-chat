@@ -16,6 +16,7 @@ export { EmojiPicker } from "./EmojiPicker";
 export { NewConversation } from "./NewConversation";
 export { UserSearch } from "./UserSearch";
 export { Toast } from "./Toast";
+export { ConfirmDialog } from "./ConfirmDialog";
 export { Avatar } from "./Avatar";
 export { Badge } from "./Badge";
 export { LoadingState } from "./LoadingState";

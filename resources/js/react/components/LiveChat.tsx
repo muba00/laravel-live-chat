@@ -5,6 +5,9 @@
  * Wraps all contexts and renders the complete chat UI.
  */
 
+// Import styles so they're always included with the component
+import "../styles/index.css";
+
 import React, { useEffect } from "react";
 import { ConversationsProvider } from "../contexts/ConversationsContext";
 import { MessagesProvider } from "../contexts/MessagesContext";
@@ -14,6 +17,7 @@ import { ConversationList } from "./internal/ConversationList";
 import { ChatWindow } from "./internal/ChatWindow";
 import { NewConversation } from "./internal/NewConversation";
 import { Toast } from "./internal/Toast";
+import { ConfirmDialog } from "./internal/ConfirmDialog";
 import type { LiveChatProps } from "../types";
 
 /**
@@ -67,6 +71,7 @@ export const LiveChat: React.FC<LiveChatProps> = ({
                                 <ChatWindow />
                                 <NewConversation />
                                 <Toast />
+                                <ConfirmDialog />
                             </div>
                         </MessagesProvider>
                     </ConversationsProvider>

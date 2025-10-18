@@ -7,12 +7,14 @@
  * - Timestamp (optional)
  * - Read receipt
  * - Status indicator (sending/sent/failed)
+ * - Copy message functionality
  */
 
-import React, { useMemo } from "react";
+import React, { useMemo, useState, useCallback } from "react";
 import type { Message } from "../../types";
 import { Avatar } from "./Avatar";
 import { formatMessageTime, linkify, sanitizeHTML } from "../../lib/formatters";
+import { useUI } from "../../contexts/UIContext";
 
 interface MessageItemProps {
     message: Message;
@@ -28,12 +30,24 @@ export const MessageItem: React.FC<MessageItemProps> = ({
     // TODO: Get current user ID from context
     const currentUserId = 1; // This should come from context
     const isSent = message.senderId === currentUserId;
+    const [showCopyButton, setShowCopyButton] = useState(false);
+    const { showToast } = useUI();
 
     // Linkify and sanitize content
     const content = useMemo(() => {
         const sanitized = sanitizeHTML(message.content);
         return linkify(sanitized);
     }, [message.content]);
+
+    // Copy message to clipboard
+    const handleCopy = useCallback(async () => {
+        try {
+            await navigator.clipboard.writeText(message.content);
+            showToast("Message copied to clipboard", "success");
+        } catch (error) {
+            showToast("Failed to copy message", "error");
+        }
+    }, [message.content, showToast]);
 
     return (
         <div
@@ -60,6 +74,8 @@ export const MessageItem: React.FC<MessageItemProps> = ({
                             ? `live-chat__message-bubble--${message.status}`
                             : ""
                     }`}
+                    onMouseEnter={() => setShowCopyButton(true)}
+                    onMouseLeave={() => setShowCopyButton(false)}
                 >
                     <div
                         className="live-chat__message-text"
@@ -74,6 +90,32 @@ export const MessageItem: React.FC<MessageItemProps> = ({
                         >
                             {formatMessageTime(message.createdAt)}
                         </time>
+                    )}
+
+                    {/* Copy Button */}
+                    {showCopyButton && (
+                        <button
+                            type="button"
+                            className="live-chat__message-copy"
+                            onClick={handleCopy}
+                            aria-label="Copy message"
+                            title="Copy message"
+                        >
+                            <svg
+                                className="live-chat__icon"
+                                width="14"
+                                height="14"
+                                viewBox="0 0 14 14"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth="1.5"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                            >
+                                <rect x="4" y="4" width="8" height="8" rx="1" />
+                                <path d="M2 10V2a1 1 0 0 1 1-1h8" />
+                            </svg>
+                        </button>
                     )}
                 </div>
 

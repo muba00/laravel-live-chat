@@ -61,11 +61,8 @@
    * Typography
    * ============================================ */
 
-    --live-chat-font-family: -apple-system, BlinkMacSystemFont, "Segoe UI",
-        "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans",
-        "Helvetica Neue", sans-serif;
-    --live-chat-font-family-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo,
-        Consolas, "Liberation Mono", monospace;
+    --live-chat-font-family: system-ui, -apple-system, sans-serif;
+    --live-chat-font-family-mono: ui-monospace, monospace;
 
     --live-chat-font-size-xs: 0.75rem; /* 12px */
     --live-chat-font-size-sm: 0.875rem; /* 14px */

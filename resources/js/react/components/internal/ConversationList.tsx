@@ -11,36 +11,105 @@
 import React, { useCallback, useRef, useEffect } from "react";
 import { useConversations } from "../../contexts/ConversationsContext";
 import { useUI } from "../../contexts/UIContext";
+import { createApiClient } from "../../lib/api-client";
 import { ConversationItem } from "./ConversationItem";
 import { LoadingState } from "./LoadingState";
 import { EmptyState } from "./EmptyState";
 import { ErrorState } from "./ErrorState";
 import { useDebounce } from "../../hooks/useDebounce";
+import type { Conversation } from "../../types";
 
 export const ConversationList: React.FC = () => {
     const {
-        conversations,
-        activeConversationId,
-        loading,
-        error,
-        hasMore,
-        loadMore,
+        state: {
+            conversations,
+            activeConversationId,
+            loading,
+            error,
+            hasMore,
+            currentPage,
+        },
         setActiveConversation,
-        refresh,
+        deleteConversation,
+        dispatch,
     } = useConversations();
 
     const {
         sidebarOpen,
-        newConversationModalOpen,
         searchQuery,
         isMobile,
         setSidebar,
         toggleNewConversationModal,
         setSearchQuery,
+        showToast,
     } = useUI();
 
     const scrollRef = useRef<HTMLDivElement>(null);
     const debouncedSearchQuery = useDebounce(searchQuery, 300);
+    const apiClient = useRef(createApiClient("/api/chat")).current;
+
+    // Fetch conversations
+    const fetchConversations = useCallback(
+        async (page: number = 1, search?: string) => {
+            try {
+                dispatch({ type: "CONVERSATIONS_LOADING" });
+                const data = await apiClient.getConversations({
+                    page,
+                    search,
+                });
+                dispatch({
+                    type: "CONVERSATIONS_LOADED",
+                    payload: {
+                        conversations: data.data,
+                        page,
+                        hasMore: data.meta?.hasMore ?? false,
+                    },
+                });
+            } catch (err) {
+                dispatch({
+                    type: "CONVERSATIONS_ERROR",
+                    payload: err as any,
+                });
+            }
+        },
+        [apiClient, dispatch]
+    );
+
+    // Refresh conversations (reset to page 1)
+    const refresh = useCallback(() => {
+        fetchConversations(1, debouncedSearchQuery);
+    }, [fetchConversations, debouncedSearchQuery]);
+
+    // Load more conversations
+    const loadMore = useCallback(() => {
+        if (!loading && hasMore) {
+            fetchConversations(currentPage + 1, debouncedSearchQuery);
+        }
+    }, [
+        fetchConversations,
+        loading,
+        hasMore,
+        currentPage,
+        debouncedSearchQuery,
+    ]);
+
+    // Handle conversation deletion
+    const handleDelete = useCallback(
+        async (conversationId: number) => {
+            try {
+                await apiClient.deleteConversation(conversationId);
+                deleteConversation(conversationId);
+                showToast("Conversation deleted successfully", "success");
+            } catch (error) {
+                console.error("Failed to delete conversation:", error);
+                showToast(
+                    "Failed to delete conversation. Please try again.",
+                    "error"
+                );
+            }
+        },
+        [apiClient, deleteConversation, showToast]
+    );
 
     // Handle scroll for pagination
     const handleScroll = useCallback(() => {
@@ -50,9 +119,9 @@ export const ConversationList: React.FC = () => {
         const scrollThreshold = 100; // Load more when 100px from bottom
 
         if (scrollHeight - scrollTop - clientHeight < scrollThreshold) {
-            loadMore();
+            // TODO: Implement loadMore
         }
-    }, [loading, hasMore, loadMore]);
+    }, [loading, hasMore]);
 
     // Effect to handle search query changes
     useEffect(() => {
@@ -60,6 +129,11 @@ export const ConversationList: React.FC = () => {
             refresh();
         }
     }, [debouncedSearchQuery, refresh]);
+
+    // Initial fetch on mount
+    useEffect(() => {
+        fetchConversations(1);
+    }, [fetchConversations]);
 
     // Close sidebar on mobile when conversation is selected
     const handleConversationClick = useCallback(
@@ -169,12 +243,13 @@ export const ConversationList: React.FC = () => {
                 )}
 
                 {/* Conversation Items */}
-                {conversations.map((conversation) => (
+                {conversations.map((conversation: Conversation) => (
                     <ConversationItem
                         key={conversation.id}
                         conversation={conversation}
                         isActive={conversation.id === activeConversationId}
                         onClick={() => handleConversationClick(conversation.id)}
+                        onDelete={handleDelete}
                     />
                 ))}
 

@@ -4,6 +4,9 @@
  * Main entry point for the React components library
  */
 
+// Import styles for bundling
+import "./styles/index.css";
+
 // Main Component
 export { LiveChat } from "./components";
 

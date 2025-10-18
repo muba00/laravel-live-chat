@@ -16,10 +16,11 @@ import { MessageInput } from "./MessageInput";
 import { LoadingState } from "./LoadingState";
 import { EmptyState } from "./EmptyState";
 import { ErrorState } from "./ErrorState";
+import type { Conversation } from "../../types";
 
 export const ChatWindow: React.FC = () => {
     const {
-        messages,
+        messages: rawMessages,
         loading,
         error,
         hasMore,
@@ -28,14 +29,19 @@ export const ChatWindow: React.FC = () => {
         refresh,
     } = useMessages();
 
-    const { activeConversationId, conversations } = useConversations();
+    const {
+        state: { activeConversationId, conversations },
+    } = useConversations();
+
+    // Ensure messages is always an array to prevent undefined errors
+    const messages = rawMessages || [];
 
     const scrollRef = useRef<HTMLDivElement>(null);
     const prevScrollHeight = useRef<number>(0);
 
     // Get active conversation
-    const activeConversation = conversations.find(
-        (c) => c.id === activeConversationId
+    const activeConversation = conversations?.find(
+        (c: Conversation) => c.id === activeConversationId
     );
 
     const otherParticipant = activeConversation?.participants[0];
